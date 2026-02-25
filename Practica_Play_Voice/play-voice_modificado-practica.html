@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Texto a Voz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 20px;
+      background: #f0f4f8;
+    }
+    h2 { text-align: center; color: #333; }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: bold;
+    }
+    #btn-speak { background: #4CAF50; color: white; }
+    #btn-stt { background: #2196F3; color: white; }
+    button:hover { opacity: 0.85; }
+    #output-area {
+      margin-top: 15px;
+      padding: 10px;
+      background: #fff;
+      border-radius: 8px;
+      color: #444;
+      min-height: 40px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🔊 Texto a Voz</h2>
+
+  <textarea id="input-area" placeholder="Escribe aquí el texto que quieres escuchar..."></textarea>
+
+  <div class="buttons">
+    <button id="btn-stt" onclick="startDictation()">🎤 Dictar</button>
+    <button id="btn-speak" onclick="speak()">▶ Reproducir</button>
+  </div>
+
+  <div id="output-area">El estado aparecerá aquí...</div>
+
+  <script>
+    const synth = window.speechSynthesis;
+    const outputArea = document.getElementById('output-area');
+    let voices = [];
+
+    function loadVoices() {
+      voices = synth.getVoices();
+    }
+
+    speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    function speak() {
+      const text = document.getElementById('input-area').value.trim();
+      if (!text) {
+        outputArea.innerHTML = '⚠️ Escribe algún texto primero.';
+        return;
+      }
+
+      synth.cancel(); // Detener cualquier lectura previa
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // 1 y 2. Configuración de parámetros específicos
+      // Selecciona la voz "Google español (es-ES)"
+      utterance.voice = voices.find(v => v.name === 'Google español') || 
+                        voices.find(v => v.lang === 'es-ES') || 
+                        voices[0];
+      
+      utterance.pitch = 0.8; 
+      utterance.rate  = 1.2; 
+
+      utterance.onstart = () => outputArea.innerHTML = '🔊 Reproduciendo...';
+      utterance.onend   = () => outputArea.innerHTML = '✅ Lectura completada.';
+      utterance.onerror = (e) => outputArea.innerHTML = `❌ Error: ${e.error}`;
+
+      synth.speak(utterance);
+    }
+
+    // Integración STT (Punto 4)
+    function startDictation() {
+      const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Recognition) {
+        outputArea.innerHTML = '❌ Navegador no compatible con STT';
+        return;
+      }
+
+      const rec = new Recognition();
+      rec.lang = 'es-MX';
+      
+      rec.onstart = () => { outputArea.innerHTML = '🎤 Escuchando...'; };
+      rec.onresult = (e) => {
+        document.getElementById('input-area').value = e.results[0][0].transcript;
+        outputArea.innerHTML = '✅ Voz capturada.';
+      };
+      rec.start();
+    }
+  </script>
+</body>
+</html>
