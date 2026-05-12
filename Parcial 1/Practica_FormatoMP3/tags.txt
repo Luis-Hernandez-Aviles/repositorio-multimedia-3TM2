@@ -1,0 +1,15 @@
+ID3 Tag	Description
+TIT2	Title of the song
+TPE1	Lead performer (Artist)
+TALB	Album name
+TCON	Genre
+TYER	Year of release
+TRCK	Track number
+TXXX	User-defined text information
+COMM	Comments
+TCOM	Composer
+USLT	Unsynchronized lyrics
+TLEN	Length of the audio in milliseconds
+TPOS	Part of a set (disc number, if applicable)
+APIC	Attached picture (album art)
+WXXX	User-defined URL link
